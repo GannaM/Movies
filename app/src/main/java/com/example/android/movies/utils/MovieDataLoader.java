@@ -12,7 +12,6 @@ import android.widget.ProgressBar;
 
 import com.example.android.movies.MainActivity;
 import com.example.android.movies.MovieDetailActivity;
-import com.example.android.movies.model.Movie;
 
 
 import java.io.IOException;
