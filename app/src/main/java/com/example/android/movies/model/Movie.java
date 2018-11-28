@@ -5,6 +5,8 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 /**
@@ -16,11 +18,22 @@ public class Movie {
 
     @PrimaryKey
     @NonNull
+    @SerializedName("id")
     private String id;
+
+    @SerializedName("title")
     private String title;
+
+    @SerializedName("poster_path")
     private String poster;
+
+    @SerializedName("overview")
     private String overview;
+
+    @SerializedName("vote_average")
     private double rating;
+
+    @SerializedName("release_date")
     private String date;
     //private List<Trailer> trailerList;
     //private List<Review> reviewList;
@@ -63,6 +76,10 @@ public class Movie {
     public void setDate(String date) { this.date = date; }
     //public void setTrailerList(List<Trailer> trailerList) { this.trailerList = trailerList; }
     //public void setReviewList(List<Review> reviewList) { this.reviewList = reviewList; }
+
+    public boolean equals(Movie newMovie) {
+        return (this.title.equals(newMovie.getTitle()) && this.date.equals(newMovie.getDate()));
+    }
 
 
 }
