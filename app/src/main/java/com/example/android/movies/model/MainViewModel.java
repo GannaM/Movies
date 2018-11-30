@@ -11,8 +11,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 
-import java.util.List;
-
 // To retrieve movies from a local database
 
 public class MainViewModel extends AndroidViewModel {
@@ -43,15 +41,17 @@ public class MainViewModel extends AndroidViewModel {
         Log.d(TAG, "Actively retrieving pages from the DataBase");
 
         PagedList.Config myPagingConfig = new PagedList.Config.Builder()
-                .setPageSize(8)
+                .setPageSize(10)
                 .setPrefetchDistance(20)
                 .setInitialLoadSizeHint(20)
                 .setEnablePlaceholders(true)
                 .build();
 
-        DataSource.Factory<Integer, Movie> myMemoryDataSource = database.movieDao().loadMoviesByPage();
 
-        movieList = new LivePagedListBuilder<>(myMemoryDataSource, myPagingConfig).build();
+
+        DataSource.Factory<Integer, Movie> movieDataSource = database.movieDao().loadMoviesByPage();
+
+        movieList = new LivePagedListBuilder<>(movieDataSource, myPagingConfig).build();
     }
 
     public LiveData<PagedList<Movie>> getMovieList() {

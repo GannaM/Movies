@@ -1,6 +1,7 @@
 package com.example.android.movies.model;
 
 import android.arch.paging.PageKeyedDataSource;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -17,6 +18,12 @@ public class MovieDataSource extends PageKeyedDataSource<Integer, Movie> {
 
     private String API_KEY = BuildConfig.API_KEY;
     private static final int FIRST_PAGE = 1;
+    private String movieTag;
+
+    public MovieDataSource(String movieTag) {
+        super();
+        this.movieTag = movieTag;
+    }
 
 
     @Override
@@ -24,11 +31,14 @@ public class MovieDataSource extends PageKeyedDataSource<Integer, Movie> {
 
         Log.d("MOVIE DATA SOURCE", "Retrieving movies...");
         RetrofitClient.getInstance()
-                .getApi().getPopularMovies(FIRST_PAGE, API_KEY)
+                //.getApi().getPopularMovies(FIRST_PAGE, API_KEY)
+                .getApi().getMovies(movieTag, FIRST_PAGE, API_KEY)
                 .enqueue(new Callback<MoviePageResult>() {
                     @Override
                     public void onResponse(Call<MoviePageResult> call, Response<MoviePageResult> response) {
                         if (response.body() != null) {
+
+                            Log.d("DATA LINK:", call.toString());
 
                             List<Movie> movies = response.body().getResults();
                             callback.onResult(movies, null, FIRST_PAGE + 1);
@@ -48,7 +58,8 @@ public class MovieDataSource extends PageKeyedDataSource<Integer, Movie> {
     @Override
     public void loadBefore(@NonNull final LoadParams<Integer> params, @NonNull final LoadCallback<Integer, Movie> callback) {
         RetrofitClient.getInstance()
-                .getApi().getPopularMovies(params.key, API_KEY)
+                //.getApi().getPopularMovies(params.key, API_KEY)
+                .getApi().getMovies(movieTag, params.key, API_KEY)
                 .enqueue(new Callback<MoviePageResult>() {
                     @Override
                     public void onResponse(Call<MoviePageResult> call, Response<MoviePageResult> response) {
@@ -70,7 +81,8 @@ public class MovieDataSource extends PageKeyedDataSource<Integer, Movie> {
     @Override
     public void loadAfter(@NonNull final LoadParams<Integer> params, @NonNull final LoadCallback<Integer, Movie> callback) {
         RetrofitClient.getInstance()
-                .getApi().getPopularMovies(params.key, API_KEY)
+                //.getApi().getPopularMovies(params.key, API_KEY)
+                .getApi().getMovies(movieTag, params.key, API_KEY)
                 .enqueue(new Callback<MoviePageResult>() {
                     @Override
                     public void onResponse(Call<MoviePageResult> call, Response<MoviePageResult> response) {

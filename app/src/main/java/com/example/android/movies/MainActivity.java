@@ -46,8 +46,6 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
                             implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private GridView mMoviesViewGridView;
-    private ImageAdapter imageAdapter;
     private RecyclerView mMoviesRecyclerView;
     private MovieAdapter mMovieAdapter;
 
@@ -58,7 +56,6 @@ public class MainActivity extends AppCompatActivity
 
     private boolean isOnline = false;
 
-    public List <Movie> movieList;
     public SharedPreferences sharedPreferences;
 
     private String sort_tag;
@@ -83,14 +80,8 @@ public class MainActivity extends AppCompatActivity
 
         mMovieAdapter = new MovieAdapter();
 
-        //mMoviesViewGridView = findViewById(R.id.movies_gridview);
-        //imageAdapter = new ImageAdapter(this);
-        //mMoviesViewGridView.setAdapter(imageAdapter);
-
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
-       //movieList = new ArrayList<>();
 
         favorite_tag = getString(R.string.pref_sort_favorite_value);
         sort_tag = loadSortTagFromPreferences(sharedPreferences);
@@ -123,15 +114,15 @@ public class MainActivity extends AppCompatActivity
 
 
     public void setupViewModel() {
-
         MovieViewModel movieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
-                movieViewModel.moviePagedList.observe(this, new Observer<PagedList<Movie>>() {
-                    @Override
-                    public void onChanged(@Nullable PagedList<Movie> movies) {
-                        mMovieAdapter.submitList(movies);
-                    }
-                });
-        mMoviesRecyclerView.setAdapter(mMovieAdapter);
+        movieViewModel.recreateStuff();
+        movieViewModel.moviePagedList.observe(this, new Observer<PagedList<Movie>>() {
+            @Override
+            public void onChanged(@Nullable PagedList<Movie> movies) {
+                mMovieAdapter.submitList(movies);
+            }
+        });
+
 
 //        switch (sort_tag) {
 //            case "favorite":
@@ -149,6 +140,8 @@ public class MainActivity extends AppCompatActivity
 //                        }
 //                    }
 //                });
+//                mMoviesRecyclerView.setAdapter(mMovieAdapter);
+//                break;
 //
 //            default:
 //                MovieViewModel movieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
@@ -159,7 +152,10 @@ public class MainActivity extends AppCompatActivity
 //                        mMovieAdapter.submitList(movies);
 //                    }
 //                });
+//                mMoviesRecyclerView.setAdapter(mMovieAdapter);
+//                break;
 //        }
+        mMoviesRecyclerView.setAdapter(mMovieAdapter);
 
 
     }
@@ -237,22 +233,30 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
-        validateConnectionStatus();
-
         sort_tag = loadSortTagFromPreferences(sharedPreferences);
-        if (key.equals(getString(R.string.pref_sort_key))) {
+        //validateConnectionStatus();
 
-            if (sort_tag.equals(favorite_tag)) {
-                //setupViewModel();
-            }
+        mMovieAdapter.reloadData();
 
-            else {
-                //reloadData();
-            }
+        setupViewModel();
 
-        }
-        updateAppTitle();
+
+//        if (key.equals(getString(R.string.pref_sort_key))) {
+//
+//            if (sort_tag.equals(favorite_tag)) {
+//                //setupViewModel();
+//            }
+//
+//            else {
+//                //reloadData();
+//            }
+//
+//        }
+
+        //mMovieAdapter.notifyDataSetChanged();
+        //updateAppTitle();
         showHideRefreshButton(menu);
+        recreate();
     }
 
     @Override
@@ -273,13 +277,13 @@ public class MainActivity extends AppCompatActivity
 //    }
 
     private void showErrorMessage() {
-        mMoviesViewGridView.setVisibility(View.INVISIBLE);
+        mMoviesRecyclerView.setVisibility(View.INVISIBLE);
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
     private void showMoviesGridView() {
         mErrorMessageDisplay.setVisibility(View.INVISIBLE);
-        mMoviesViewGridView.setVisibility(View.VISIBLE);
+        mMoviesRecyclerView.setVisibility(View.VISIBLE);
 
     }
 

@@ -7,11 +7,17 @@ import android.arch.paging.PageKeyedDataSource;
 public class MovieDataSourceFactory extends DataSource.Factory {
 
     private MutableLiveData<PageKeyedDataSource<Integer, Movie>> movieLiveDataSource = new MutableLiveData<>();
+    private String movieTag;
+
+    public MovieDataSourceFactory(String movieTag) {
+        super();
+        this.movieTag = movieTag;
+    }
 
     @Override
     public DataSource create() {
 
-        MovieDataSource movieDataSource = new MovieDataSource();
+        MovieDataSource movieDataSource = new MovieDataSource(movieTag);
 
         movieLiveDataSource.postValue(movieDataSource);
 

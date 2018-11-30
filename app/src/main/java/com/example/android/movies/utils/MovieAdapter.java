@@ -102,5 +102,10 @@ public class MovieAdapter extends PagedListAdapter<Movie, MovieAdapter.MovieView
                 }
             };
 
+    public void reloadData() {
+        getCurrentList().getDataSource().invalidate();
+
+    }
+
 }
 
