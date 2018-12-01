@@ -17,20 +17,16 @@ import com.example.android.movies.R;
 
 public class MovieViewModel extends AndroidViewModel {
 
-    //creating livedata for PagedList and PageKeyedDataSource
-
     public LiveData<PagedList<Movie>> moviePagedList;
-//    LiveData<PageKeyedDataSource<Integer, Movie>> liveDataSource;
 
     public MovieViewModel(@NonNull Application application) {
         super(application);
 
-        //LiveData<PageKeyedDataSource<Integer, Movie>> liveDataSource = movieDataSourceFactory.getMovieLiveDataSource();
-
-        recreateStuff();
+        initDataSource();
     }
 
-    public void recreateStuff() {
+
+    public void initDataSource() {
         PagedList.Config pagedListConfig = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
                 .setPageSize(10)
@@ -38,14 +34,13 @@ public class MovieViewModel extends AndroidViewModel {
                 .setInitialLoadSizeHint(20)
                 .build();
 
-        //Executor executor = Executors.newFixedThreadPool(5);
         Context context = this.getApplication().getApplicationContext();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         String sortTag = sharedPreferences.getString(context.getString(R.string.pref_sort_key), context.getString(R.string.pref_sort_popular_value));
+        String favoriteTag = context.getString(R.string.pref_sort_favorite_value);
 
-        DataSource.Factory<Integer, Movie> movieDataSourceFactory = null;
+        DataSource.Factory<Integer, Movie> movieDataSourceFactory;
 
-//
         switch (sortTag) {
             case "favorite":
                 AppDatabase database = AppDatabase.getsInstance(this.getApplication());
@@ -55,14 +50,12 @@ public class MovieViewModel extends AndroidViewModel {
 
             default:
                 movieDataSourceFactory = new MovieDataSourceFactory(sortTag);
-                moviePagedList = new LivePagedListBuilder<Integer, Movie>(movieDataSourceFactory, pagedListConfig)
-                        //        .setFetchExecutor(executor)
+                moviePagedList = new LivePagedListBuilder<>(movieDataSourceFactory, pagedListConfig)
                         .build();
                 break;
         }
 
         moviePagedList = new LivePagedListBuilder<>(movieDataSourceFactory, pagedListConfig)
-                //        .setFetchExecutor(executor)
                 .build();
     }
 }

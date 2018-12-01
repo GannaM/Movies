@@ -20,23 +20,32 @@ import java.net.URL;
 
 public class MovieAdapter extends PagedListAdapter<Movie, MovieAdapter.MovieViewHolder> {
 
+    final private MovieAdapter.ItemClickListener mItemClickListener;
 
-    public MovieAdapter() {
+
+    public MovieAdapter(MovieAdapter.ItemClickListener listener) {
         super(DIFF_CALLBACK);
+
+        mItemClickListener = listener;
+    }
+
+    public interface ItemClickListener {
+        void onItemClick(Movie movie);
     }
 
 
-    public class MovieViewHolder extends RecyclerView.ViewHolder {
+    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         private ImageView mImageView;
 
-        public MovieViewHolder(View view) {
+        private MovieViewHolder(View view) {
             super(view);
             mImageView = view.findViewById(R.id.poster_view);
+            view.setOnClickListener(this);
         }
 
-        public void bindTo(Movie movie) {
-            URL posterPath = buildPosterURL("w185", movie.getPoster());
+        private void bindTo(Movie movie) {
+            URL posterPath = MovieListService.buildPosterURL("w185", movie.getPoster());
 
             Picasso.get()
                     .load(posterPath.toString())
@@ -47,20 +56,12 @@ public class MovieAdapter extends PagedListAdapter<Movie, MovieAdapter.MovieView
             //mImageView.setImageDrawable(R.drawable.ic_launcher_foreground);
         }
 
-        private URL buildPosterURL(String posterSize, String posterPath) {
-            String POSTER_BASE_URL = "https://image.tmdb.org/t/p/";
-            Uri builtUri = Uri.parse(POSTER_BASE_URL).buildUpon()
-                    .appendPath(posterSize)
-                    .appendEncodedPath(posterPath)
-                    .build();
 
-            URL url = null;
-            try {
-                url = new URL(builtUri.toString());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            return url;
+        @Override
+        public void onClick(View view) {
+            int position = getAdapterPosition();
+            Movie movie = getItem(position);
+            mItemClickListener.onItemClick(movie);
         }
     }
 
@@ -89,7 +90,7 @@ public class MovieAdapter extends PagedListAdapter<Movie, MovieAdapter.MovieView
         }
     }
 
-    public static final DiffUtil.ItemCallback<Movie> DIFF_CALLBACK =
+    private static final DiffUtil.ItemCallback<Movie> DIFF_CALLBACK =
             new DiffUtil.ItemCallback<Movie>() {
                 @Override
                 public boolean areItemsTheSame(@NonNull Movie oldMovie, @NonNull Movie newMovie) {
@@ -102,10 +103,6 @@ public class MovieAdapter extends PagedListAdapter<Movie, MovieAdapter.MovieView
                 }
             };
 
-    public void reloadData() {
-        getCurrentList().getDataSource().invalidate();
-
-    }
 
 }
 

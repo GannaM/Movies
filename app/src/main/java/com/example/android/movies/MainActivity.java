@@ -7,44 +7,31 @@ import android.arch.paging.PagedList;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v4.app.LoaderManager;
 
-import android.support.v4.content.Loader;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.android.movies.model.AppDatabase;
-import com.example.android.movies.model.MainViewModel;
 import com.example.android.movies.model.Movie;
 import com.example.android.movies.model.MovieViewModel;
 import com.example.android.movies.settings.SettingsActivity;
-import com.example.android.movies.utils.ImageAdapter;
 import com.example.android.movies.utils.MovieAdapter;
-import com.example.android.movies.utils.MovieDataLoader;
-import com.example.android.movies.utils.MovieListService;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-                            implements SharedPreferences.OnSharedPreferenceChangeListener {
+                            implements SharedPreferences.OnSharedPreferenceChangeListener,
+                                        MovieAdapter.ItemClickListener {
 
     private RecyclerView mMoviesRecyclerView;
     private MovieAdapter mMovieAdapter;
@@ -62,6 +49,8 @@ public class MainActivity extends AppCompatActivity
     private String favorite_tag;
     private Menu menu;
 
+    private MovieViewModel mMovieViewModel;
+
 
 
     @Override
@@ -78,7 +67,7 @@ public class MainActivity extends AppCompatActivity
         mMoviesRecyclerView.setLayoutManager(gridLayoutManager);
         mMoviesRecyclerView.setHasFixedSize(true);
 
-        mMovieAdapter = new MovieAdapter();
+        mMovieAdapter = new MovieAdapter(this);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -112,94 +101,35 @@ public class MainActivity extends AppCompatActivity
         updateAppTitle();
     }
 
+    @Override
+    public void onItemClick(Movie movie) {
+        Intent intent = new Intent(MainActivity.this, MovieDetailActivity.class);
+
+        Bundle movieBundle = new Bundle();
+        movieBundle.putString(MovieDetailActivity.MOVIE_ID, movie.getId());
+        movieBundle.putString(MovieDetailActivity.MOVIE_TITLE, movie.getTitle());
+        movieBundle.putString(MovieDetailActivity.MOVIE_OVERVIEW, movie.getOverview());
+        movieBundle.putString(MovieDetailActivity.MOVIE_POSTER, movie.getPoster());
+        movieBundle.putDouble(MovieDetailActivity.MOVIE_RATING, movie.getRating());
+        movieBundle.putString(MovieDetailActivity.MOVIE_DATE, movie.getDate());
+
+        intent.putExtras(movieBundle);
+        startActivity(intent);
+
+    }
 
     public void setupViewModel() {
-        MovieViewModel movieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
-        movieViewModel.recreateStuff();
-        movieViewModel.moviePagedList.observe(this, new Observer<PagedList<Movie>>() {
+        mMovieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
+        mMovieViewModel.moviePagedList.observe(this, new Observer<PagedList<Movie>>() {
             @Override
             public void onChanged(@Nullable PagedList<Movie> movies) {
                 mMovieAdapter.submitList(movies);
             }
         });
 
-
-//        switch (sort_tag) {
-//            case "favorite":
-//                MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-//                viewModel.movieList.observe(this, new Observer<PagedList<Movie>>() {
-//                    @Override
-//                    public void onChanged(@Nullable PagedList<Movie> movies) {
-//                        if (movies.get(0) == null) {
-//                            mErrorMessageDisplay.setText(R.string.no_favorite_movies_message);
-//                            showErrorMessage();
-//                        }
-//                        else {
-//                            Log.d("MainActivity", "Updating list of tasks from LiveData in ViewModel");
-//                            mMovieAdapter.submitList(movies);
-//                        }
-//                    }
-//                });
-//                mMoviesRecyclerView.setAdapter(mMovieAdapter);
-//                break;
-//
-//            default:
-//                MovieViewModel movieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
-//
-//                movieViewModel.moviePagedList.observe(this, new Observer<PagedList<Movie>>() {
-//                    @Override
-//                    public void onChanged(@Nullable PagedList<Movie> movies) {
-//                        mMovieAdapter.submitList(movies);
-//                    }
-//                });
-//                mMoviesRecyclerView.setAdapter(mMovieAdapter);
-//                break;
-//        }
         mMoviesRecyclerView.setAdapter(mMovieAdapter);
-
-
     }
 
-
-
-//    @Override
-//    public Loader<List<?>> onCreateLoader(int id, Bundle bundle) {
-//        if (sort_tag.equals(favorite_tag)) {
-//            return null;
-//        }
-//
-//        URL movieRequestUrl = MovieListService.buildURL(sort_tag, API_KEY);
-//
-//        return new MovieDataLoader(this, id, mLoadingIndicator, movieRequestUrl);
-//    }
-//
-//    @Override
-//    public void onLoadFinished(Loader<List<?>> loader, List<?> data) {
-//        mLoadingIndicator.setVisibility(View.INVISIBLE);
-//
-//        if (data == null) {
-//            mErrorMessageDisplay.setText(R.string.error_message);
-//            showErrorMessage();
-//        } else {
-//            showMoviesGridView();
-//        }
-//
-//        movieList.clear();
-//
-//        for (Object obj : data) {
-//            if (obj instanceof Movie) {
-//                Movie m = (Movie) obj;
-//                movieList.add(m);
-//            }
-//        }
-//
-//        imageAdapter.setImageData(movieList);
-//        imageAdapter.notifyDataSetChanged();
-//    }
-//
-//    @Override
-//    public void onLoaderReset(Loader<List<?>> loader) {
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -234,28 +164,7 @@ public class MainActivity extends AppCompatActivity
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
         sort_tag = loadSortTagFromPreferences(sharedPreferences);
-        //validateConnectionStatus();
-
-        mMovieAdapter.reloadData();
-
-        setupViewModel();
-
-
-//        if (key.equals(getString(R.string.pref_sort_key))) {
-//
-//            if (sort_tag.equals(favorite_tag)) {
-//                //setupViewModel();
-//            }
-//
-//            else {
-//                //reloadData();
-//            }
-//
-//        }
-
-        //mMovieAdapter.notifyDataSetChanged();
-        //updateAppTitle();
-        showHideRefreshButton(menu);
+        mMovieViewModel.initDataSource();
         recreate();
     }
 
@@ -270,11 +179,6 @@ public class MainActivity extends AppCompatActivity
         return tag;
     }
 
-//    private void reloadData() {
-//        if (isOnline) {
-//            getSupportLoaderManager().restartLoader(MOVIES_LOADER_ID, null, this);
-//        }
-//    }
 
     private void showErrorMessage() {
         mMoviesRecyclerView.setVisibility(View.INVISIBLE);

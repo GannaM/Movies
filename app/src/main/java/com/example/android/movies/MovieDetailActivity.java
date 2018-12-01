@@ -51,6 +51,12 @@ public class MovieDetailActivity extends AppCompatActivity
 
     private static final int DEFAULT_POSITION = -1;
     public static final String MOVIE_INDEX = "movie_index";
+    public static final String MOVIE_ID = "movie_id";
+    public static final String MOVIE_TITLE = "movie_title";
+    public static final String MOVIE_POSTER = "movie_poster";
+    public static final String MOVIE_OVERVIEW = "movie_overview";
+    public static final String MOVIE_RATING = "movie_rating";
+    public static final String MOVIE_DATE = "movie_date";
 
     public static final int DETAIL_LOADER_ID = 0;
 
@@ -101,17 +107,30 @@ public class MovieDetailActivity extends AppCompatActivity
             closeOnError();
         }
 
-        int index = intent.getIntExtra(MOVIE_INDEX, DEFAULT_POSITION);
-        if (index == DEFAULT_POSITION) {
+        final Bundle bundle = intent.getExtras();
+        if (bundle == null) {
             closeOnError();
         }
 
-        mMovie = ImageAdapter.retrieveMovie(index);
-        String movieTitle = mMovie.getTitle();
-        if (movieTitle == null || movieTitle.isEmpty()) {
-            movieTitle = getString(R.string.unknown);
-        }
-        setTitle(movieTitle);
+        mMovie = new Movie();
+        mMovie.setId(bundle.getString(MOVIE_ID));
+        mMovie.setTitle(bundle.getString(MOVIE_TITLE));
+        mMovie.setPoster(bundle.getString(MOVIE_POSTER));
+        mMovie.setOverview(bundle.getString(MOVIE_OVERVIEW));
+        mMovie.setDate(bundle.getString(MOVIE_DATE));
+        mMovie.setRating(bundle.getDouble(MOVIE_RATING));
+
+//        int index = intent.getIntExtra(MOVIE_INDEX, DEFAULT_POSITION);
+//        if (index == DEFAULT_POSITION) {
+//            closeOnError();
+//        }
+
+        //mMovie = ImageAdapter.retrieveMovie(index);
+//        String movieTitle = mMovie.getTitle();
+//        if (movieTitle == null || movieTitle.isEmpty()) {
+//            movieTitle = getString(R.string.unknown);
+//        }
+        setTitle(mMovie.getTitle());
 
 
         if (savedInstanceState != null) {
