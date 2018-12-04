@@ -27,7 +27,6 @@ import com.example.android.movies.model.Review;
 import com.example.android.movies.model.Trailer;
 
 import com.example.android.movies.utils.AppExecutors;
-import com.example.android.movies.utils.ImageAdapter;
 import com.example.android.movies.utils.MovieDataLoader;
 import com.example.android.movies.utils.MovieListService;
 import com.example.android.movies.utils.ReviewAdapter;
@@ -45,12 +44,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MovieDetailActivity extends AppCompatActivity
                                     implements TrailerAdapterOnClickHandler, ReviewAdapterOnClickHandler,
                                                                     LoaderManager.LoaderCallbacks<List<?>> {
 
-    private static final int DEFAULT_POSITION = -1;
-    public static final String MOVIE_INDEX = "movie_index";
     public static final String MOVIE_ID = "movie_id";
     public static final String MOVIE_TITLE = "movie_title";
     public static final String MOVIE_POSTER = "movie_poster";
@@ -61,22 +61,11 @@ public class MovieDetailActivity extends AppCompatActivity
     public static final int DETAIL_LOADER_ID = 0;
 
     private boolean isFavorite;
-    private ImageButton mFavoriteButton;
     private static final String BUTTON_STATE = "button_state";
 
     private Movie mMovie;
-    private ImageView mPosterIv;
-    private TextView mReleaseDateTv;
-    private TextView mUserRatingTv;
-    private TextView mOverviewTv;
 
-    private View mTrailerView;
-    private RecyclerView mTrailerRecyclerView;
-    private ProgressBar mLoadingIndicator;
     private TrailerAdapter mTrailerAdapter;
-
-    private View mReviewsView;
-    private RecyclerView mReviewRecyclerView;
     private ReviewAdapter mReviewAdapter;
 
     private List<Trailer> mTrailerList;
@@ -85,21 +74,31 @@ public class MovieDetailActivity extends AppCompatActivity
     private AppDatabase mDb;
     private String API_KEY;
 
+    @BindView(R.id.imageButton_favorite) ImageButton mFavoriteButton;
+    @BindView(R.id.pb_loading_indicator_trailers) ProgressBar mLoadingIndicator;
+
+    @BindView(R.id.iv_movie_poster) ImageView mPosterIv;
+    @BindView(R.id.tv_release_date) TextView mReleaseDateTv;
+    @BindView(R.id.tv_user_rating) TextView mUserRatingTv;
+    @BindView(R.id.tv_overview) TextView mOverviewTv;
+
+    @BindView(R.id.layout_trailers) View mTrailerView;
+    @BindView(R.id.recyclerview_trailers) RecyclerView mTrailerRecyclerView;
+
+    @BindView(R.id.layout_reviews) View mReviewsView;
+    @BindView(R.id.recyclerview_reviews) RecyclerView mReviewRecyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
+        ButterKnife.bind(this);
 
         API_KEY = getString(R.string.api_key);
 
-        mPosterIv = findViewById(R.id.iv_movie_poster);
-        mReleaseDateTv = findViewById(R.id.tv_release_date);
-        mUserRatingTv = findViewById(R.id.tv_user_rating);
-        mOverviewTv = findViewById(R.id.tv_overview);
-
         mTrailerList = new ArrayList<>();
         mReviewList = new ArrayList<>();
-        mFavoriteButton = findViewById(R.id.imageButton_favorite);
+
         mDb = AppDatabase.getsInstance(getApplicationContext());
 
         Intent intent = getIntent();
@@ -120,16 +119,6 @@ public class MovieDetailActivity extends AppCompatActivity
         mMovie.setDate(bundle.getString(MOVIE_DATE));
         mMovie.setRating(bundle.getDouble(MOVIE_RATING));
 
-//        int index = intent.getIntExtra(MOVIE_INDEX, DEFAULT_POSITION);
-//        if (index == DEFAULT_POSITION) {
-//            closeOnError();
-//        }
-
-        //mMovie = ImageAdapter.retrieveMovie(index);
-//        String movieTitle = mMovie.getTitle();
-//        if (movieTitle == null || movieTitle.isEmpty()) {
-//            movieTitle = getString(R.string.unknown);
-//        }
         setTitle(mMovie.getTitle());
 
 
@@ -159,17 +148,13 @@ public class MovieDetailActivity extends AppCompatActivity
                 .load(posterPath)
                 .into(mPosterIv);
 
-        mLoadingIndicator = findViewById(R.id.pb_loading_indicator_trailers);
 
-        mTrailerView = findViewById(R.id.layout_trailers);
-        mTrailerRecyclerView = findViewById(R.id.recyclerview_trailers);
         LinearLayoutManager layoutManagerTrailers = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mTrailerRecyclerView.setLayoutManager(layoutManagerTrailers);
         mTrailerAdapter = new TrailerAdapter(this);
         mTrailerRecyclerView.setAdapter(mTrailerAdapter);
 
-        mReviewsView = findViewById(R.id.layout_reviews);
-        mReviewRecyclerView = findViewById(R.id.recyclerview_reviews);
+
         LinearLayoutManager layoutManagerReviews = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mReviewRecyclerView.setLayoutManager(layoutManagerReviews);
         mReviewAdapter = new ReviewAdapter(this);
