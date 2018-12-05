@@ -2,7 +2,6 @@ package com.example.android.movies.utils;
 
 import android.arch.paging.PagedListAdapter;
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
@@ -15,7 +14,6 @@ import com.example.android.movies.R;
 import com.example.android.movies.model.Movie;
 import com.squareup.picasso.Picasso;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MovieAdapter extends PagedListAdapter<Movie, MovieAdapter.MovieViewHolder> {

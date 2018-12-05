@@ -134,7 +134,6 @@ public class MovieDetailActivity extends AppCompatActivity
         String releaseDate = parseDateString(mMovie.getDate());
         mReleaseDateTv.setText(releaseDate);
 
-
         String rating = mMovie.getRating() + " / 10";
         mUserRatingTv.setText(rating);
 
@@ -148,12 +147,10 @@ public class MovieDetailActivity extends AppCompatActivity
                 .load(posterPath)
                 .into(mPosterIv);
 
-
         LinearLayoutManager layoutManagerTrailers = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mTrailerRecyclerView.setLayoutManager(layoutManagerTrailers);
         mTrailerAdapter = new TrailerAdapter(this);
         mTrailerRecyclerView.setAdapter(mTrailerAdapter);
-
 
         LinearLayoutManager layoutManagerReviews = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mReviewRecyclerView.setLayoutManager(layoutManagerReviews);
@@ -196,7 +193,6 @@ public class MovieDetailActivity extends AppCompatActivity
         URL detailRequestUrl = MovieListService.buildMovieDetailURL(mMovie.getId(), API_KEY);
         return new MovieDataLoader(this, id, mLoadingIndicator, detailRequestUrl);
     }
-
 
 
     @Override

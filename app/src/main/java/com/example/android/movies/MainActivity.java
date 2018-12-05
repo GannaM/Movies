@@ -1,6 +1,5 @@
 package com.example.android.movies;
 
-
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.arch.paging.PagedList;
@@ -84,7 +83,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-
         updateAppTitle();
     }
 
@@ -140,9 +138,10 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.action_refresh) {
             validateConnectionStatus();
-            //reloadData();
-            setupViewModel();
-            recreate();
+            if (isOnline) {
+                mMovieViewModel.initDataSource();
+                recreate();
+            }
             return true;
 
         }
