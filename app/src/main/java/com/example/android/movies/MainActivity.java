@@ -28,16 +28,13 @@ import com.example.android.movies.model.MovieViewModel;
 import com.example.android.movies.settings.SettingsActivity;
 import com.example.android.movies.utils.MovieAdapter;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 
 public class MainActivity extends AppCompatActivity
                             implements SharedPreferences.OnSharedPreferenceChangeListener,
                                         MovieAdapter.ItemClickListener {
-
-    private RecyclerView mMoviesRecyclerView;
-    private MovieAdapter mMovieAdapter;
-
-    private TextView mErrorMessageDisplay;
-    private ProgressBar mLoadingIndicator;
 
     public static final int MOVIES_LOADER_ID = 42;
 
@@ -50,18 +47,20 @@ public class MainActivity extends AppCompatActivity
     private Menu menu;
 
     private MovieViewModel mMovieViewModel;
+    private MovieAdapter mMovieAdapter;
 
+    @BindView(R.id.tv_error_message_display) TextView mErrorMessageDisplay;
+    @BindView(R.id.pb_loading_indicator) ProgressBar mLoadingIndicator;
+
+    @BindView(R.id.main_recycler_view) RecyclerView mMoviesRecyclerView;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-        mErrorMessageDisplay = findViewById(R.id.tv_error_message_display);
-        mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
-
-        mMoviesRecyclerView = findViewById(R.id.main_recycler_view);
         int columnsNumber = getResources().getInteger(R.integer.column_span);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, columnsNumber);
         mMoviesRecyclerView.setLayoutManager(gridLayoutManager);
@@ -77,26 +76,14 @@ public class MainActivity extends AppCompatActivity
 
         setupViewModel();
 
-//        validateConnectionStatus();
+        validateConnectionStatus();
 
-//        if (isOnline) {
-//            if (sort_tag.equals(favorite_tag)) {
-//                setupViewModel();
-//            }
-//            else {
-//                getSupportLoaderManager().initLoader(MOVIES_LOADER_ID, null, this);
-//            }
-//        }
+        if (!isOnline) {
+            if (!sort_tag.equals(favorite_tag)) {
+                showErrorMessage();
+            }
+        }
 
-//        mMoviesViewGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-//
-//                Intent intent = new Intent(MainActivity.this, MovieDetailActivity.class);
-//                intent.putExtra(MovieDetailActivity.MOVIE_INDEX, position);
-//                startActivity(intent);
-//            }
-//        });
 
         updateAppTitle();
     }
@@ -154,6 +141,8 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_refresh) {
             validateConnectionStatus();
             //reloadData();
+            setupViewModel();
+            recreate();
             return true;
 
         }
