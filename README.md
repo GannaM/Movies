@@ -27,8 +27,8 @@ Favorite movies are stored locally using Room Database. To retrieve favorite mov
 MovieDetailActivity shows an example how to use AsyncTaskLoader to fetch additional movie details.
 
 ### Libraries:
-* Retrofit for api communication
-* Picasso for image loading
-* Android Architecture Components
-* Butterknife for data binding
+* [Retrofit](https://square.github.io/retrofit/) for REST api communication
+* [Picasso](http://square.github.io/picasso/) for image loading
+* Android Architecture Components([RoomDatabase](https://developer.android.com/reference/android/arch/persistence/room/RoomDatabase), [LiveData](https://developer.android.com/topic/libraries/architecture/livedata), [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel))
+* [Butterknife](http://jakewharton.github.io/butterknife/) for data binding
 
