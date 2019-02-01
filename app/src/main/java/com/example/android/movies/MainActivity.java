@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity
         mMoviesRecyclerView.setHasFixedSize(true);
 
         mMovieAdapter = new MovieAdapter(this);
+        mMoviesRecyclerView.setAdapter(mMovieAdapter);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -105,14 +106,14 @@ public class MainActivity extends AppCompatActivity
 
     public void setupViewModel() {
         mMovieViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
-        mMovieViewModel.moviePagedList.observe(this, new Observer<PagedList<Movie>>() {
+
+        mMovieViewModel.getMoviesByDataSource(sort_tag).observe(this, new Observer<PagedList<Movie>>() {
             @Override
             public void onChanged(@Nullable PagedList<Movie> movies) {
                 mMovieAdapter.submitList(movies);
             }
         });
 
-        mMoviesRecyclerView.setAdapter(mMovieAdapter);
     }
 
 
@@ -139,8 +140,8 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_refresh) {
             validateConnectionStatus();
             if (isOnline) {
-                mMovieViewModel.initDataSource();
-                recreate();
+                setupViewModel();
+                //recreate();
             }
             return true;
 
@@ -150,10 +151,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
         sort_tag = loadSortTagFromPreferences(sharedPreferences);
-        mMovieViewModel.initDataSource();
-        recreate();
+        setupViewModel();
+        //recreate();
     }
 
     @Override
