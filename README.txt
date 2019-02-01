@@ -25,7 +25,7 @@ This app demonstrates how to implement Paging library with backend API (TheMovie
 Favorite movies are stored locally using Room Database. To retrieve favorite movies, standard datasource is used. 
 
 
-AsyncTaskLoader to fetch Movie's details
+ASYNCTASKLOADER TO FETCH MOVIE'S DETAILS
 
 MovieDetailActivity shows an example how to use AsyncTaskLoader to fetch additional movie details
 
