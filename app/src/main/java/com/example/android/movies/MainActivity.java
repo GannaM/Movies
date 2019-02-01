@@ -141,7 +141,6 @@ public class MainActivity extends AppCompatActivity
             validateConnectionStatus();
             if (isOnline) {
                 setupViewModel();
-                //recreate();
             }
             return true;
 
@@ -153,7 +152,7 @@ public class MainActivity extends AppCompatActivity
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         sort_tag = loadSortTagFromPreferences(sharedPreferences);
         setupViewModel();
-        //recreate();
+        updateAppTitle();
     }
 
     @Override
