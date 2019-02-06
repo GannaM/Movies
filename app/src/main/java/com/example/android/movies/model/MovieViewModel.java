@@ -6,47 +6,44 @@ import android.arch.lifecycle.LiveData;
 import android.arch.paging.DataSource;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+
 import android.support.annotation.NonNull;
 
-import com.example.android.movies.R;
+
 
 public class MovieViewModel extends AndroidViewModel {
 
-    public LiveData<PagedList<Movie>> moviePagedList;
+    private LiveData<PagedList<Movie>> moviePagedList;
+    private AppDatabase mDb;
+    private DataSource.Factory<Integer, Movie> movieDataSourceFactory;
+    private PagedList.Config pagedListConfig;
 
     public MovieViewModel(@NonNull Application application) {
         super(application);
 
-        initDataSource();
-    }
-
-    public void initDataSource() {
-        PagedList.Config pagedListConfig = new PagedList.Config.Builder()
+        pagedListConfig = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
                 .setPageSize(10)
                 .setPrefetchDistance(20)
                 .setInitialLoadSizeHint(20)
                 .build();
 
-        Context context = this.getApplication().getApplicationContext();
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String sortTag = sharedPreferences.getString(context.getString(R.string.pref_sort_key), context.getString(R.string.pref_sort_popular_value));
-        String favoriteTag = context.getString(R.string.pref_sort_favorite_value);
+        mDb = AppDatabase.getsInstance(this.getApplication());
+    }
 
-        DataSource.Factory<Integer, Movie> movieDataSourceFactory;
-
-        if (sortTag.equals(favoriteTag)) {
-            AppDatabase database = AppDatabase.getsInstance(this.getApplication());
-            movieDataSourceFactory = database.movieDao().loadMoviesByPage();
+    public LiveData<PagedList<Movie>> getMoviesByDataSource(String sortTag) {
+        // For Favorite Movies that are derived from a local database
+        if (sortTag.equals("favorite")) {
+            movieDataSourceFactory = mDb.movieDao().loadMoviesByPage();
         }
+
+        // For Popular and Top Rated Movies that are derived from network
         else {
             movieDataSourceFactory = new MovieDataSourceFactory(sortTag);
         }
 
         moviePagedList = new LivePagedListBuilder<>(movieDataSourceFactory, pagedListConfig)
                 .build();
+        return moviePagedList;
     }
 }
