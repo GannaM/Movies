@@ -157,7 +157,8 @@ public class MovieDetailActivity extends AppCompatActivity
         mReviewAdapter = new ReviewAdapter(this);
         mReviewRecyclerView.setAdapter(mReviewAdapter);
 
-        getSupportLoaderManager().initLoader(DETAIL_LOADER_ID, null, this);
+        //getSupportLoaderManager().initLoader(DETAIL_LOADER_ID, null, this); // deprecated
+        LoaderManager.getInstance(this).initLoader(DETAIL_LOADER_ID, null, this);
     }
 
     @Override
